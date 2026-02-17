@@ -1,0 +1,10 @@
+^C:\HTML_01\COMPRO\BUILD\CMAKEFILES\4C83B866B437B8E483B447D7355B62BF\GENERATE.STAMP.RULE
+setlocal
+C:\Users\MoMo\AppData\Local\Programs\Python\Python38\Lib\site-packages\cmake\data\bin\cmake.exe -SC:/html_01/compro -BC:/html_01/compro/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/html_01/compro/build/compro.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

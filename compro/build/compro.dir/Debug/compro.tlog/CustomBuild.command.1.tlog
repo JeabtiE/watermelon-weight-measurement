@@ -1,0 +1,10 @@
+^C:\HTML_01\COMPRO\CMAKELISTS.TXT
+setlocal
+C:\Users\MoMo\AppData\Local\Programs\Python\Python38\Lib\site-packages\cmake\data\bin\cmake.exe -SC:/html_01/compro -BC:/html_01/compro/build --check-stamp-file C:/html_01/compro/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
