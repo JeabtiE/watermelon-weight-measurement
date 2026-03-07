@@ -43,8 +43,11 @@ endif()
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "C:/project_compro/GUI/*.cpp")
 set(OLD_GLOB
   "C:/project_compro/GUI/build/Desktop_Qt_6_10_2_MSVC2022_64bit-Debug/CMakeFiles/3.30.5/CompilerIdCXX/CMakeCXXCompilerId.cpp"
+  "C:/project_compro/GUI/build/Desktop_Qt_6_10_2_MSVC2022_64bit-Debug/GUI_autogen/EWIEGA46WW/moc_calibrationwindow.cpp"
   "C:/project_compro/GUI/build/Desktop_Qt_6_10_2_MSVC2022_64bit-Debug/GUI_autogen/EWIEGA46WW/moc_mainwindow.cpp"
   "C:/project_compro/GUI/build/Desktop_Qt_6_10_2_MSVC2022_64bit-Debug/GUI_autogen/mocs_compilation.cpp"
+  "C:/project_compro/GUI/calibrationwindow.cpp"
+  "C:/project_compro/GUI/config.cpp"
   "C:/project_compro/GUI/main.cpp"
   "C:/project_compro/GUI/mainwindow.cpp"
   )
@@ -66,7 +69,10 @@ endif()
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "C:/project_compro/GUI/*.h")
 set(OLD_GLOB
   "C:/project_compro/GUI/build/Desktop_Qt_6_10_2_MSVC2022_64bit-Debug/CMakeFiles/ShowIncludes/foo.h"
+  "C:/project_compro/GUI/build/Desktop_Qt_6_10_2_MSVC2022_64bit-Debug/GUI_autogen/include/ui_calibrationwindow.h"
   "C:/project_compro/GUI/build/Desktop_Qt_6_10_2_MSVC2022_64bit-Debug/GUI_autogen/include/ui_mainwindow.h"
+  "C:/project_compro/GUI/calibrationwindow.h"
+  "C:/project_compro/GUI/config.h"
   "C:/project_compro/GUI/mainwindow.h"
   )
 if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
@@ -168,6 +174,7 @@ endif()
 # _directory_contents at C:/Qt/6.10.2/msvc2022_64/lib/cmake/Qt6LinguistTools/Qt6LinguistToolsMacros.cmake:55 (file)
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "C:/project_compro/GUI/*.ui")
 set(OLD_GLOB
+  "C:/project_compro/GUI/calibrationwindow.ui"
   "C:/project_compro/GUI/mainwindow.ui"
   )
 if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")

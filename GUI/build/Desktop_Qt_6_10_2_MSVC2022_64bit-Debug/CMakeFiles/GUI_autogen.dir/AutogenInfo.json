@@ -495,6 +495,18 @@
 	"HEADERS" : 
 	[
 		[
+			"C:/project_compro/GUI/calibrationwindow.h",
+			"MU",
+			"EWIEGA46WW/moc_calibrationwindow.cpp",
+			null
+		],
+		[
+			"C:/project_compro/GUI/config.h",
+			"MU",
+			"EWIEGA46WW/moc_config.cpp",
+			null
+		],
+		[
 			"C:/project_compro/GUI/mainwindow.h",
 			"MU",
 			"EWIEGA46WW/moc_mainwindow.cpp",
@@ -559,6 +571,8 @@
 	"SETTINGS_FILE" : "C:/project_compro/GUI/build/Desktop_Qt_6_10_2_MSVC2022_64bit-Debug/CMakeFiles/GUI_autogen.dir/AutogenUsed.txt",
 	"SOURCES" : 
 	[
+		[ "C:/project_compro/GUI/calibrationwindow.cpp", "MU", null ],
+		[ "C:/project_compro/GUI/config.cpp", "MU", null ],
 		[ "C:/project_compro/GUI/main.cpp", "MU", null ],
 		[ "C:/project_compro/GUI/mainwindow.cpp", "MU", null ]
 	],

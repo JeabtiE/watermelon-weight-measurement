@@ -51,7 +51,7 @@ build cmake_object_order_depends_target_GUI: phony || GUI_autogen GUI_autogen\mo
 
 build CMakeFiles\GUI.dir\GUI_autogen\mocs_compilation.cpp.obj: CXX_COMPILER__GUI_unscanned_Debug C$:\project_compro\GUI\build\Desktop_Qt_6_10_2_MSVC2022_64bit-Debug\GUI_autogen\mocs_compilation.cpp || cmake_object_order_depends_target_GUI
   DEFINES = -DQT_CORE_LIB -DQT_GUI_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64
-  FLAGS = -DQT_QML_DEBUG /DWIN32 /D_WINDOWS /GR /EHsc /Zi /Ob0 /Od /RTC1 -std:c++17 -MDd -Zc:__cplusplus -permissive- -utf-8
+  FLAGS = /DWIN32 /D_WINDOWS /GR /EHsc /Zi /Ob0 /Od /RTC1 -std:c++17 -MDd -Zc:__cplusplus -permissive- -utf-8
   INCLUDES = -IC:\project_compro\GUI\build\Desktop_Qt_6_10_2_MSVC2022_64bit-Debug\GUI_autogen\include -external:IC:\Qt\6.10.2\msvc2022_64\include\QtCore -external:IC:\Qt\6.10.2\msvc2022_64\include -external:IC:\Qt\6.10.2\msvc2022_64\mkspecs\win32-msvc -external:IC:\Qt\6.10.2\msvc2022_64\include\QtGui -external:IC:\Qt\6.10.2\msvc2022_64\include\QtWidgets -external:IC:\Qt\6.10.2\msvc2022_64\include\QtSql -external:IC:\project_compro\opencv\build\include -external:W0
   OBJECT_DIR = CMakeFiles\GUI.dir
   OBJECT_FILE_DIR = CMakeFiles\GUI.dir\GUI_autogen
@@ -60,7 +60,7 @@ build CMakeFiles\GUI.dir\GUI_autogen\mocs_compilation.cpp.obj: CXX_COMPILER__GUI
 
 build CMakeFiles\GUI.dir\main.cpp.obj: CXX_COMPILER__GUI_unscanned_Debug C$:\project_compro\GUI\main.cpp || cmake_object_order_depends_target_GUI
   DEFINES = -DQT_CORE_LIB -DQT_GUI_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64
-  FLAGS = -DQT_QML_DEBUG /DWIN32 /D_WINDOWS /GR /EHsc /Zi /Ob0 /Od /RTC1 -std:c++17 -MDd -Zc:__cplusplus -permissive- -utf-8
+  FLAGS = /DWIN32 /D_WINDOWS /GR /EHsc /Zi /Ob0 /Od /RTC1 -std:c++17 -MDd -Zc:__cplusplus -permissive- -utf-8
   INCLUDES = -IC:\project_compro\GUI\build\Desktop_Qt_6_10_2_MSVC2022_64bit-Debug\GUI_autogen\include -external:IC:\Qt\6.10.2\msvc2022_64\include\QtCore -external:IC:\Qt\6.10.2\msvc2022_64\include -external:IC:\Qt\6.10.2\msvc2022_64\mkspecs\win32-msvc -external:IC:\Qt\6.10.2\msvc2022_64\include\QtGui -external:IC:\Qt\6.10.2\msvc2022_64\include\QtWidgets -external:IC:\Qt\6.10.2\msvc2022_64\include\QtSql -external:IC:\project_compro\opencv\build\include -external:W0
   OBJECT_DIR = CMakeFiles\GUI.dir
   OBJECT_FILE_DIR = CMakeFiles\GUI.dir
@@ -69,7 +69,25 @@ build CMakeFiles\GUI.dir\main.cpp.obj: CXX_COMPILER__GUI_unscanned_Debug C$:\pro
 
 build CMakeFiles\GUI.dir\mainwindow.cpp.obj: CXX_COMPILER__GUI_unscanned_Debug C$:\project_compro\GUI\mainwindow.cpp || cmake_object_order_depends_target_GUI
   DEFINES = -DQT_CORE_LIB -DQT_GUI_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64
-  FLAGS = -DQT_QML_DEBUG /DWIN32 /D_WINDOWS /GR /EHsc /Zi /Ob0 /Od /RTC1 -std:c++17 -MDd -Zc:__cplusplus -permissive- -utf-8
+  FLAGS = /DWIN32 /D_WINDOWS /GR /EHsc /Zi /Ob0 /Od /RTC1 -std:c++17 -MDd -Zc:__cplusplus -permissive- -utf-8
+  INCLUDES = -IC:\project_compro\GUI\build\Desktop_Qt_6_10_2_MSVC2022_64bit-Debug\GUI_autogen\include -external:IC:\Qt\6.10.2\msvc2022_64\include\QtCore -external:IC:\Qt\6.10.2\msvc2022_64\include -external:IC:\Qt\6.10.2\msvc2022_64\mkspecs\win32-msvc -external:IC:\Qt\6.10.2\msvc2022_64\include\QtGui -external:IC:\Qt\6.10.2\msvc2022_64\include\QtWidgets -external:IC:\Qt\6.10.2\msvc2022_64\include\QtSql -external:IC:\project_compro\opencv\build\include -external:W0
+  OBJECT_DIR = CMakeFiles\GUI.dir
+  OBJECT_FILE_DIR = CMakeFiles\GUI.dir
+  TARGET_COMPILE_PDB = CMakeFiles\GUI.dir\
+  TARGET_PDB = GUI.pdb
+
+build CMakeFiles\GUI.dir\calibrationwindow.cpp.obj: CXX_COMPILER__GUI_unscanned_Debug C$:\project_compro\GUI\calibrationwindow.cpp || cmake_object_order_depends_target_GUI
+  DEFINES = -DQT_CORE_LIB -DQT_GUI_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64
+  FLAGS = /DWIN32 /D_WINDOWS /GR /EHsc /Zi /Ob0 /Od /RTC1 -std:c++17 -MDd -Zc:__cplusplus -permissive- -utf-8
+  INCLUDES = -IC:\project_compro\GUI\build\Desktop_Qt_6_10_2_MSVC2022_64bit-Debug\GUI_autogen\include -external:IC:\Qt\6.10.2\msvc2022_64\include\QtCore -external:IC:\Qt\6.10.2\msvc2022_64\include -external:IC:\Qt\6.10.2\msvc2022_64\mkspecs\win32-msvc -external:IC:\Qt\6.10.2\msvc2022_64\include\QtGui -external:IC:\Qt\6.10.2\msvc2022_64\include\QtWidgets -external:IC:\Qt\6.10.2\msvc2022_64\include\QtSql -external:IC:\project_compro\opencv\build\include -external:W0
+  OBJECT_DIR = CMakeFiles\GUI.dir
+  OBJECT_FILE_DIR = CMakeFiles\GUI.dir
+  TARGET_COMPILE_PDB = CMakeFiles\GUI.dir\
+  TARGET_PDB = GUI.pdb
+
+build CMakeFiles\GUI.dir\config.cpp.obj: CXX_COMPILER__GUI_unscanned_Debug C$:\project_compro\GUI\config.cpp || cmake_object_order_depends_target_GUI
+  DEFINES = -DQT_CORE_LIB -DQT_GUI_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64
+  FLAGS = /DWIN32 /D_WINDOWS /GR /EHsc /Zi /Ob0 /Od /RTC1 -std:c++17 -MDd -Zc:__cplusplus -permissive- -utf-8
   INCLUDES = -IC:\project_compro\GUI\build\Desktop_Qt_6_10_2_MSVC2022_64bit-Debug\GUI_autogen\include -external:IC:\Qt\6.10.2\msvc2022_64\include\QtCore -external:IC:\Qt\6.10.2\msvc2022_64\include -external:IC:\Qt\6.10.2\msvc2022_64\mkspecs\win32-msvc -external:IC:\Qt\6.10.2\msvc2022_64\include\QtGui -external:IC:\Qt\6.10.2\msvc2022_64\include\QtWidgets -external:IC:\Qt\6.10.2\msvc2022_64\include\QtSql -external:IC:\project_compro\opencv\build\include -external:W0
   OBJECT_DIR = CMakeFiles\GUI.dir
   OBJECT_FILE_DIR = CMakeFiles\GUI.dir
@@ -84,8 +102,8 @@ build CMakeFiles\GUI.dir\mainwindow.cpp.obj: CXX_COMPILER__GUI_unscanned_Debug C
 #############################################
 # Link the executable GUI.exe
 
-build GUI.exe: CXX_EXECUTABLE_LINKER__GUI_Debug CMakeFiles\GUI.dir\GUI_autogen\mocs_compilation.cpp.obj CMakeFiles\GUI.dir\main.cpp.obj CMakeFiles\GUI.dir\mainwindow.cpp.obj | C$:\Qt\6.10.2\msvc2022_64\lib\Qt6Widgetsd.lib C$:\Qt\6.10.2\msvc2022_64\lib\Qt6Sqld.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\Qt\6.10.2\msvc2022_64\lib\Qt6Guid.lib C$:\Qt\6.10.2\msvc2022_64\lib\Qt6Cored.lib C$:\Qt\6.10.2\msvc2022_64\lib\Qt6EntryPointd.lib || GUI_autogen GUI_autogen_timestamp_deps
-  FLAGS = -DQT_QML_DEBUG /DWIN32 /D_WINDOWS /GR /EHsc /Zi /Ob0 /Od /RTC1 -MDd
+build GUI.exe: CXX_EXECUTABLE_LINKER__GUI_Debug CMakeFiles\GUI.dir\GUI_autogen\mocs_compilation.cpp.obj CMakeFiles\GUI.dir\main.cpp.obj CMakeFiles\GUI.dir\mainwindow.cpp.obj CMakeFiles\GUI.dir\calibrationwindow.cpp.obj CMakeFiles\GUI.dir\config.cpp.obj | C$:\Qt\6.10.2\msvc2022_64\lib\Qt6Widgetsd.lib C$:\Qt\6.10.2\msvc2022_64\lib\Qt6Sqld.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib C$:\Qt\6.10.2\msvc2022_64\lib\Qt6Guid.lib C$:\Qt\6.10.2\msvc2022_64\lib\Qt6Cored.lib C$:\Qt\6.10.2\msvc2022_64\lib\Qt6EntryPointd.lib || GUI_autogen GUI_autogen_timestamp_deps
+  FLAGS = /DWIN32 /D_WINDOWS /GR /EHsc /Zi /Ob0 /Od /RTC1 -MDd
   LINK_FLAGS = /machine:x64 /debug /INCREMENTAL /subsystem:windows
   LINK_LIBRARIES = C:\Qt\6.10.2\msvc2022_64\lib\Qt6Widgetsd.lib  C:\Qt\6.10.2\msvc2022_64\lib\Qt6Sqld.lib  C:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib  C:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib  C:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib  C:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib  C:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib  C:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib  C:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib  C:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib  C:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib  C:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib  C:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib  C:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib  C:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib  C:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib  C:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib  C:\project_compro\opencv\build\x64\vc16\lib\opencv_world4120d.lib  C:\Qt\6.10.2\msvc2022_64\lib\Qt6Guid.lib  d3d11.lib  dxgi.lib  dxguid.lib  d3d12.lib  C:\Qt\6.10.2\msvc2022_64\lib\Qt6Cored.lib  mpr.lib  userenv.lib  C:\Qt\6.10.2\msvc2022_64\lib\Qt6EntryPointd.lib  shell32.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
   OBJECT_DIR = CMakeFiles\GUI.dir
@@ -160,7 +178,7 @@ build GUI_autogen_timestamp_deps: phony
 #############################################
 # Utility command for GUI_autogen
 
-build GUI_autogen: phony CMakeFiles\GUI_autogen GUI_autogen\include\ui_mainwindow.h GUI_autogen\timestamp GUI_autogen\mocs_compilation.cpp GUI_autogen_timestamp_deps
+build GUI_autogen: phony CMakeFiles\GUI_autogen GUI_autogen\include\ui_mainwindow.h GUI_autogen\include\ui_calibrationwindow.h GUI_autogen\timestamp GUI_autogen\mocs_compilation.cpp GUI_autogen_timestamp_deps
 
 
 #############################################
@@ -177,7 +195,7 @@ build GUI_autogen\timestamp GUI_autogen\mocs_compilation.cpp | ${cmake_ninja_wor
 #############################################
 # Phony custom command for CMakeFiles\GUI_autogen
 
-build CMakeFiles\GUI_autogen GUI_autogen\include\ui_mainwindow.h | ${cmake_ninja_workdir}CMakeFiles\GUI_autogen ${cmake_ninja_workdir}GUI_autogen\include\ui_mainwindow.h: phony GUI_autogen\timestamp || GUI_autogen_timestamp_deps
+build CMakeFiles\GUI_autogen GUI_autogen\include\ui_mainwindow.h GUI_autogen\include\ui_calibrationwindow.h | ${cmake_ninja_workdir}CMakeFiles\GUI_autogen ${cmake_ninja_workdir}GUI_autogen\include\ui_mainwindow.h ${cmake_ninja_workdir}GUI_autogen\include\ui_calibrationwindow.h: phony GUI_autogen\timestamp || GUI_autogen_timestamp_deps
 
 # =============================================================================
 # Target aliases.
