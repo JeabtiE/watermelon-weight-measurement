@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "config.h"
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>
@@ -21,6 +22,7 @@
 #include <QDir>
 #include <QDateTime>
 
+
 using namespace cv;
 using namespace std;
 
@@ -30,11 +32,15 @@ Constructor ของ MainWindow
 ============================================================
 */
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(double scale, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    pixel_per_cm = scale;
+
+    qDebug() << "Scale received:" << pixel_per_cm;
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName("watermelon.db");
@@ -80,7 +86,8 @@ MainWindow::MainWindow(QWidget *parent)
         if(countdown <= 0)
         {
             saveWatermelon();
-            countdown = 10;
+            ///////////////////////
+            countdown = 15;
         }
 
     });
@@ -133,7 +140,7 @@ void MainWindow::updateCamera()
 
     if(frame.empty()) return;
 
-    GaussianBlur(frame, frame, Size(7,7), 0.5);
+    GaussianBlur(frame, frame, Size(11,11), 2);
 
     currentFrame = frame.clone();
 
@@ -143,22 +150,37 @@ void MainWindow::updateCamera()
 
     Mat mask_green, mask_dark, mask_light, mask_total;
 
-    Scalar lower_green(25, 40, 40);
-    Scalar upper_green(90, 255, 255);
+    Scalar lower_green(20,20,20);
+    Scalar upper_green(110,255,255);
 
     inRange(hsv, lower_green, upper_green, mask_green);
 
     Scalar lower_dark(0,0,0);
-    Scalar upper_dark(180,255,70);
+    Scalar upper_dark(180,255,90);
 
     inRange(hsv, lower_dark, upper_dark, mask_dark);
+
+    Scalar lower_darkgreen(35,10,10);
+    Scalar upper_darkgreen(120,255,120);
+
+    Mat mask_darkgreen;
+    inRange(hsv, lower_darkgreen, upper_darkgreen, mask_darkgreen);
 
     Scalar lower_light(20,20,120);
     Scalar upper_light(90,120,255);
 
     inRange(hsv, lower_light, upper_light, mask_light);
 
-    mask_total = mask_green | mask_dark | mask_light;
+    Mat mask_highlight;
+
+    Scalar lower_high(0,0,200);
+    Scalar upper_high(180,40,255);
+
+    inRange(hsv, lower_high, upper_high, mask_highlight);
+
+    mask_total = mask_green | mask_dark | mask_light | mask_darkgreen;
+
+    //////////////////////////////////////////////////////////////////////
 
     Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(9,9));
 
@@ -178,13 +200,13 @@ void MainWindow::updateCamera()
     {
         double area = contourArea(contours[i]);
 
-        if(area < 15000)
+        if(area < 8000)
             continue;
 
         double perimeter = arcLength(contours[i], true);
         double circularity = 4 * CV_PI * area / (perimeter * perimeter);
 
-        if(circularity < 0.5)
+        if(circularity < 0.45)
             continue;
 
         if(area > maxArea)
@@ -194,13 +216,17 @@ void MainWindow::updateCamera()
         }
     }
 
+    width_cm = 0;
+    height_cm = 0;
+    weight = 0;
+
     if(maxIndex >= 0)
     {
         objects = 1;
 
         vector<Point> cnt = contours[maxIndex];
 
-        RotatedRect rect = fitEllipse(cnt);
+        RotatedRect rect = minAreaRect(cnt);
 
         Point2f box[4];
         rect.points(box);
@@ -233,19 +259,26 @@ void MainWindow::updateCamera()
 
         if(w < h) swap(w,h);
 
-        double width_cm_new = w / 25.5;
-        double height_cm_new = h / 25.5;
+        double width_cm_new = w / pixel_per_cm;
+        double height_cm_new = h / pixel_per_cm;
 
         static double w_avg = width_cm_new;
         static double h_avg = height_cm_new;
 
-        w_avg = 0.95 * w_avg + 0.05 * width_cm_new;
-        h_avg = 0.95 * h_avg + 0.05 * height_cm_new;
+        w_avg = 0.9 * w_avg + 0.1 * width_cm_new;
+        h_avg = 0.9 * h_avg + 0.1 * height_cm_new;
 
         width_cm = w_avg;
         height_cm = h_avg;
 
-        weight = (0.0019 * ((2 * width_cm * height_cm * height_cm * 3.14)/3)) + 0.2228;
+        // ===== Improved Weight Estimation =====
+        weight = (0.0019 * ((2 * width_cm * height_cm * height_cm * 3.14) / 3)) + 0.2228;
+
+        static double weight_avg = weight;
+        weight_avg = 0.9 * weight_avg + 0.1 * weight;
+        weight = weight_avg;
+
+        saved = false;
     }
 
     char w_text[50];
@@ -285,6 +318,8 @@ saveWatermelon()
 
 void MainWindow::saveWatermelon()
 {
+    if(saved) return;
+
     if(width_cm <= 0 || height_cm <= 0 || weight <= 0) return;
 
     int row = ui->tableWidget->rowCount();
@@ -324,6 +359,8 @@ void MainWindow::saveWatermelon()
     query.exec();
 
     watermelon_images.push_back(currentFrame.clone());
+
+    saved = true;
 }
 
 /*
