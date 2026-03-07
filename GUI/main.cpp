@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "calibrationwindow.h"
 
 #include <QApplication>
 #include <QLocale>
@@ -18,7 +19,8 @@ int main(int argc, char *argv[])
         }
     }
 
-    MainWindow w;
-    w.show();   // ต้องมีบรรทัดนี้
+    CalibrationWindow w;
+    w.show();
+
     return a.exec();
 }
