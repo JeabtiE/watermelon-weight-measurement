@@ -20,7 +20,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(double scale, QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
@@ -64,6 +64,10 @@ private:
     int countA = 0;
     int countB = 0;
     int countC = 0;
+
+    double pixel_per_cm;
+
+    bool saved = false;
 
 };
 
