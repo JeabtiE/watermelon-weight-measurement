@@ -2,10 +2,10 @@
 
 void MainWindow::saveWatermelon()
 {
-    // ถ้าบันทึกข้อมูลผลนี้ไปแล้ว ให้หยุดฟังก์ชันทันที
+    // ถ้าบันทึกข้อมูลผลนี้ไปแล้วฟังก์ชันจะหยุดทันที
     if(saved) return;
 
-    // ถ้าค่าความกว้าง ความสูง หรือน้ำหนัก ยังไม่ถูกคำนวณ (<=0) ก็ไม่ให้บันทึก
+    // ถ้าค่าความกว้าง ความสูง หรือน้ำหนัก ยังไม่ถูกคำนวณ ก็ไม่ให้บันทึก
     if(width_cm <= 0 || height_cm <= 0 || weight <= 0) return;
 
     // ดึงจำนวนแถวปัจจุบันของตาราง
@@ -17,13 +17,13 @@ void MainWindow::saveWatermelon()
     // ใส่หมายเลขแตงโมลงในคอลัมน์ที่ 0
     ui->tableWidget->setItem(row,0,new QTableWidgetItem(QString::number(watermelon_no)));
 
-    // ใส่ค่าความกว้าง (cm) ลงในคอลัมน์ที่ 1 และแสดงทศนิยม 2 ตำแหน่ง
+    // ใส่ค่าความกว้าง cm ลงในคอลัมน์ที่ 1 และแสดงทศนิยม 2 ตำแหน่ง
     ui->tableWidget->setItem(row,1,new QTableWidgetItem(QString::number(width_cm,'f',2)));
 
-    // ใส่ค่าความสูง (cm) ลงในคอลัมน์ที่ 2
+    // ใส่ค่าความสูง cm ลงในคอลัมน์ที่ 2
     ui->tableWidget->setItem(row,2,new QTableWidgetItem(QString::number(height_cm,'f',2)));
 
-    // ใส่น้ำหนัก (kg) ลงในคอลัมน์ที่ 3
+    // ใส่น้ำหนัก kg ลงในคอลัมน์ที่ 3
     ui->tableWidget->setItem(row,3,new QTableWidgetItem(QString::number(weight,'f',2)));
 
     // เรียกฟังก์ชันคำนวณเกรดของแตงโมจากค่าน้ำหนัก
