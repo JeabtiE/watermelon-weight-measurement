@@ -1,45 +1,81 @@
+
+
 void MainWindow::saveWatermelon()
 {
+    // ถ้าบันทึกข้อมูลผลนี้ไปแล้ว ให้หยุดฟังก์ชันทันที
     if(saved) return;
 
+    // ถ้าค่าความกว้าง ความสูง หรือน้ำหนัก ยังไม่ถูกคำนวณ (<=0) ก็ไม่ให้บันทึก
     if(width_cm <= 0 || height_cm <= 0 || weight <= 0) return;
 
+    // ดึงจำนวนแถวปัจจุบันของตาราง
     int row = ui->tableWidget->rowCount();
+
+    // เพิ่มแถวใหม่ในตาราง
     ui->tableWidget->insertRow(row);
 
+    // ใส่หมายเลขแตงโมลงในคอลัมน์ที่ 0
     ui->tableWidget->setItem(row,0,new QTableWidgetItem(QString::number(watermelon_no)));
+
+    // ใส่ค่าความกว้าง (cm) ลงในคอลัมน์ที่ 1 และแสดงทศนิยม 2 ตำแหน่ง
     ui->tableWidget->setItem(row,1,new QTableWidgetItem(QString::number(width_cm,'f',2)));
+
+    // ใส่ค่าความสูง (cm) ลงในคอลัมน์ที่ 2
     ui->tableWidget->setItem(row,2,new QTableWidgetItem(QString::number(height_cm,'f',2)));
+
+    // ใส่น้ำหนัก (kg) ลงในคอลัมน์ที่ 3
     ui->tableWidget->setItem(row,3,new QTableWidgetItem(QString::number(weight,'f',2)));
 
+    // เรียกฟังก์ชันคำนวณเกรดของแตงโมจากค่าน้ำหนัก
     QString grade = getGrade(weight);
 
+    // เก็บค่าน้ำหนักไว้ใน vector สำหรับใช้วิเคราะห์ภายหลัง
     weights.push_back(weight);
+
+    // เก็บเกรดไว้ใน vector
     grades.push_back(grade);
 
+    // นับจำนวนแตงโมแต่ละเกรด
     if(grade == "A") countA++;
     else if(grade == "B") countB++;
     else if(grade == "C") countC++;
 
+    // แสดงเกรดลงในคอลัมน์ที่ 4 ของตาราง
     ui->tableWidget->setItem(row,4,new QTableWidgetItem(grade));
 
+    // จัดข้อความในคอลัมน์ 0-3 ให้อยู่กึ่งกลาง
     for(int i=0;i<4;i++)
         ui->tableWidget->item(row,i)->setTextAlignment(Qt::AlignCenter);
 
+    // เพิ่มหมายเลขแตงโมสำหรับผลถัดไป
     watermelon_no++;
 
+    // สร้าง object สำหรับ query ฐานข้อมูล
     QSqlQuery query;
 
+    // เตรียมคำสั่ง SQL สำหรับบันทึกข้อมูลแตงโมลงฐานข้อมูล
     query.prepare("INSERT INTO watermelon (width,height,weight,grade) VALUES (?,?,?,?)");
 
+    // ใส่ค่าความกว้างลงใน parameter ตัวที่ 1
     query.addBindValue(width_cm);
+
+    // ใส่ค่าความสูงลงใน parameter ตัวที่ 2
     query.addBindValue(height_cm);
+
+    // ใส่น้ำหนักลงใน parameter ตัวที่ 3
     query.addBindValue(weight);
+
+    // ใส่เกรดลงใน parameter ตัวที่ 4
     query.addBindValue(grade);
 
+    // รันคำสั่ง SQL เพื่อบันทึกข้อมูลลงฐานข้อมูล
     query.exec();
 
+    // เก็บภาพของแตงโมที่ตรวจจับได้ไว้ใน vector
+    // เพื่อใช้แสดงหรือบันทึกภาพในภายหลัง
     watermelon_images.push_back(currentFrame.clone());
 
+    // ตั้งค่าว่าผลนี้ถูกบันทึกแล้ว
+    // เพื่อไม่ให้บันทึกซ้ำ
     saved = true;
 }
