@@ -172,7 +172,83 @@ void MainWindow::on_pushButton_continue_clicked()
 
 
 
+// ฟังก์ชันนี้ทำงานเมื่อกดปุ่ม Capture Calibration
+// ใช้สำหรับ "ล็อกค่า Homography" หลังจากตรวจพบ ArUco marker ครบ 4 ตัว
 
+void CalibrationWindow::on_btn_capture_clicked()
+{
+    // ถ้ายังไม่สามารถคำนวณ homography ได้
+    if(!homography_ready)
+    {
+        // แจ้งเตือนผู้ใช้ว่า marker ยังไม่ครบ
+        QMessageBox::warning(this,
+                             "Calibration",
+                             "Aruco markers not detected!");
+        return;
+    }
+
+    // ตั้งค่าว่าระบบถูก calibration แล้ว
+    calibrated = true;
+
+    // debug message ใน console
+    qDebug() << "Homography locked";
+
+    // เปิดใช้งานปุ่ม continue
+    // ผู้ใช้สามารถไปหน้าวัดแตงโมได้
+    ui->btn_continue->setEnabled(true);
+}
+
+//////////**********/////////*********/////////**********//////////********//////////
+
+// ฟังก์ชันนี้ทำงานเมื่อกดปุ่ม Continue
+// ใช้สำหรับเปลี่ยนจาก Calibration Window → MainWindow
+
+void CalibrationWindow::on_btn_continue_clicked()
+{
+    // ตรวจสอบว่ามี homography หรือยัง
+    if(!homography_ready)
+    {
+        QMessageBox::warning(this,
+                             "Calibration Required",
+                             "Please detect 4 Aruco markers first!");
+        return;
+    }
+
+    ///////////////////////////////////////////////////////
+    // หยุดกล้องในหน้าปัจจุบัน
+    ///////////////////////////////////////////////////////
+
+    if(timer)
+    {
+        // หยุดการอ่าน frame
+        timer->stop();
+
+        // ตัด signal-slot connection
+        disconnect(timer, nullptr, this, nullptr);
+    }
+
+    ///////////////////////////////////////////////////////
+    // ปล่อย resource ของกล้อง
+    ///////////////////////////////////////////////////////
+
+    cap.release();
+
+    ///////////////////////////////////////////////////////
+    // เปิด MainWindow (ระบบวัดแตงโม)
+    ///////////////////////////////////////////////////////
+
+    // ส่ง Homography matrix ไปให้ MainWindow
+    MainWindow *w = new MainWindow(homography);
+
+    // แสดงหน้าต่างหลัก
+    w->show();
+
+    ///////////////////////////////////////////////////////
+    // ปิด Calibration Window
+    ///////////////////////////////////////////////////////
+
+    this->close();
+}
 
 
 
