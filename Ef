@@ -1,1 +1,293 @@
+// ฟังก์ชัน updateCamera() จะถูกเรียกทุก ๆ frame (ประมาณ 30 fps)
+// หน้าที่คือ
+// 1. อ่านภาพจากกล้อง
+// 2. ตรวจจับแตงโม
+// 3. วัดขนาด
+// 4. คำนวณน้ำหนัก
+// 5. แสดงผลบนหน้าจอ
 
+void MainWindow::updateCamera()
+{
+    // ตัวแปรสำหรับเก็บภาพจากกล้อง
+    Mat frame;
+
+    // อ่าน frame จากกล้อง webcam
+    cap >> frame;
+
+    // ถ้าอ่านภาพไม่ได้ให้หยุดฟังก์ชันทันที
+    if(frame.empty()) return;
+
+    // ทำ Gaussian Blur เพื่อลด noise ในภาพ
+    // kernel size = 11x11
+    GaussianBlur(frame, frame, Size(11,11), 0.1);
+
+    // เก็บภาพปัจจุบันไว้ (ใช้ตอน save ภาพแตงโม)
+    currentFrame = frame.clone();
+
+    // แปลงภาพจาก BGR → HSV
+    // HSV ทำให้การแยกสีง่ายกว่า RGB
+    Mat hsv;
+    cv::cvtColor(frame, hsv, cv::COLOR_BGR2HSV);
+
+    ////////////////////////////////////////////////////////
+    // HSV segmentation (แยกสีของแตงโม)
+    ////////////////////////////////////////////////////////
+
+    // mask สำหรับเก็บช่วงสีต่าง ๆ
+    Mat mask_green, mask_dark, mask_light, mask_total;
+
+    // ช่วงสีเขียวของเปลือกแตงโม
+    Scalar lower_green(20,20,20);
+    Scalar upper_green(110,255,255);
+
+    // ตรวจจับ pixel ที่อยู่ในช่วงสีนี้
+    inRange(hsv, lower_green, upper_green, mask_green);
+
+    // ช่วงสีมืด (ลายของแตงโม)
+    Scalar lower_dark(0,0,0);
+    Scalar upper_dark(180,255,90);
+
+    inRange(hsv, lower_dark, upper_dark, mask_dark);
+
+    // สีเขียวเข้ม
+    Scalar lower_darkgreen(35,10,10);
+    Scalar upper_darkgreen(120,255,120);
+    Mat mask_darkgreen;
+
+    inRange(hsv, lower_darkgreen, upper_darkgreen, mask_darkgreen);
+
+    // สีเขียวอ่อน
+    Scalar lower_light(20,20,120);
+    Scalar upper_light(90,120,255);
+
+    inRange(hsv, lower_light, upper_light, mask_light);
+
+    // mask สำหรับ highlight บนผิวแตงโม
+    Mat mask_highlight;
+
+    Scalar lower_high(0,0,200);
+    Scalar upper_high(180,40,255);
+
+    inRange(hsv, lower_high, upper_high, mask_highlight);
+
+    // รวม mask ทั้งหมดเข้าด้วยกัน
+    mask_total =
+        mask_green |
+        mask_dark |
+        mask_light |
+        mask_darkgreen;
+
+    // สร้าง kernel สำหรับ morphology
+    Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(9,9));
+
+    // ปิดรูเล็ก ๆ ใน mask
+    morphologyEx(mask_total, mask_total, MORPH_CLOSE, kernel);
+
+    // ลบ noise เล็ก ๆ
+    morphologyEx(mask_total, mask_total, MORPH_OPEN, kernel);
+
+    ////////////////////////////////////////////////////////
+    // หา contour ของวัตถุ
+    ////////////////////////////////////////////////////////
+
+    vector<vector<Point>> contours;
+    vector<Vec4i> hierarchy;
+
+    // หาเส้นขอบของวัตถุใน mask
+    findContours(mask_total, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+
+    int objects = 0;
+
+    // ตัวแปรสำหรับหา contour ที่ใหญ่ที่สุด
+    double maxArea = 0;
+    int maxIndex = -1;
+
+    // วนลูปตรวจสอบ contour ทุกตัว
+    for(int i = 0; i < (int)contours.size(); i++)
+    {
+        // คำนวณพื้นที่ของ contour
+        double area = contourArea(contours[i]);
+
+        // ถ้าเล็กเกินไปให้ข้าม
+        if(area < 8000) continue;
+
+        // คำนวณเส้นรอบรูป
+        double perimeter = arcLength(contours[i], true);
+
+        // คำนวณ circularity
+        // ใช้ตรวจสอบว่าวัตถุมีรูปทรงคล้ายวงรีหรือไม่
+        double circularity = 4 * CV_PI * area / (perimeter * perimeter);
+
+        // ถ้าไม่กลมพอให้ข้าม
+        if(circularity < 0.45) continue;
+
+        // เลือก contour ที่ใหญ่ที่สุด
+        if(area > maxArea)
+        {
+            maxArea = area;
+            maxIndex = i;
+        }
+    }
+
+    // reset ค่า
+    width_cm = 0;
+    height_cm = 0;
+    weight = 0;
+
+    ////////////////////////////////////////////////////////
+    // วัดขนาดวัตถุ (แตงโม)
+    ////////////////////////////////////////////////////////
+
+    if(maxIndex >= 0)
+    {
+        // พบวัตถุ
+        objects = 1;
+
+        vector<Point> cnt = contours[maxIndex];
+
+        // สร้าง bounding box แบบหมุนได้
+        RotatedRect rect = minAreaRect(cnt);
+
+        // เก็บจุดมุม 4 จุด
+        Point2f box[4];
+
+        rect.points(box);
+
+        // วาดกรอบสี่เหลี่ยมรอบแตงโม
+        for(int j=0;j<4;j++)
+        {
+            line(frame, box[j], box[(j+1)%4], Scalar(0,255,0),2);
+        }
+
+        // ความกว้างและความสูงของ bounding box (pixel)
+        float w = rect.size.width;
+        float h = rect.size.height;
+
+        // จุดศูนย์กลาง
+        Point2f center = rect.center;
+
+        // มุมการหมุน
+        float angle = rect.angle * CV_PI / 180.0;
+
+        // vector แกน X
+        Point2f dx(cos(angle), sin(angle));
+
+        // vector แกน Y
+        Point2f dy(-sin(angle), cos(angle));
+
+        // จุดปลายของเส้น width
+        Point2f x1 = center - dx * (w/2);
+        Point2f x2 = center + dx * (w/2);
+
+        // จุดปลายของเส้น height
+        Point2f y1 = center - dy * (h/2);
+        Point2f y2 = center + dy * (h/2);
+
+        // วาดเส้น width
+        line(frame, x1, x2, Scalar(255,0,255), 2);
+
+        // วาดเส้น height
+        line(frame, y1, y2, Scalar(255,0,255), 2);
+
+        // วาดจุด center
+        circle(frame, center, 5, Scalar(0,255,255), -1);
+
+        // ทำให้ w เป็นด้านยาวเสมอ
+        if(w < h)
+            swap(w,h);
+
+        // ===== convert pixel → real world =====
+
+        vector<Point2f> src_pts;
+        vector<Point2f> dst_pts;
+
+        // จุดปลายของเส้น width
+        src_pts.push_back(x1);
+        src_pts.push_back(x2);
+
+        // จุดปลายของเส้น height
+        src_pts.push_back(y1);
+        src_pts.push_back(y2);
+
+        // ใช้ Homography แปลง pixel → world coordinate
+        perspectiveTransform(src_pts, dst_pts, homography);
+
+        // ระยะจริงในหน่วย mm
+        double width_mm = norm(dst_pts[0] - dst_pts[1]);
+        double height_mm = norm(dst_pts[2] - dst_pts[3]);
+
+        // แปลง mm → cm
+        double width_cm_new = width_mm / 10.0;
+        double height_cm_new = height_mm / 10.0;
+
+        ////////////////////////////////////////////////
+
+        // smoothing ค่า width และ height
+        static double w_avg = width_cm_new;
+        static double h_avg = height_cm_new;
+
+        w_avg = 0.9 * w_avg + 0.1 * width_cm_new;
+        h_avg = 0.9 * h_avg + 0.1 * height_cm_new;
+
+        width_cm = w_avg;
+        height_cm = h_avg;
+
+        // ===== คำนวณน้ำหนัก =====
+
+        // สูตรประมาณ volume ของแตงโม
+        weight = (0.0018 * ((2 * width_cm * height_cm * height_cm * 3.14) / 3)) + 0.2228;
+
+        // แก้ scale ให้ตรงกับน้ำหนักจริง
+        weight = weight / 10.0;
+
+        // smoothing ค่าน้ำหนัก
+        static double weight_avg = weight;
+        weight_avg = 0.9 * weight_avg + 0.1 * weight;
+        weight = weight_avg;
+
+        // อนุญาตให้ save ข้อมูล
+        saved = false;
+    }
+
+    ////////////////////////////////////////////////////////
+    // แสดงข้อมูลบนภาพ
+    ////////////////////////////////////////////////////////
+
+    char w_text[50];
+    char h_text[50];
+    char weight_text[50];
+
+    sprintf(w_text,"W: %.2f cm",width_cm);
+    sprintf(h_text,"H: %.2f cm",height_cm);
+    sprintf(weight_text,"Weight: %.2f kg",weight);
+
+    string text = "Save in: " + to_string(countdown);
+
+    putText(frame,text,Point(10,170),FONT_HERSHEY_SIMPLEX,0.7,Scalar(20,200,255),2);
+    putText(frame,w_text,Point(10,30),FONT_HERSHEY_SIMPLEX,0.7,Scalar(245,73,39),2);
+    putText(frame,h_text,Point(10,60),FONT_HERSHEY_SIMPLEX,0.7,Scalar(245,73,39),2);
+    putText(frame,weight_text,Point(10,100),FONT_HERSHEY_SIMPLEX,0.9,Scalar(39,245,73),2);
+
+    putText(frame,"Objects: " + to_string(objects),
+            Point(10,140),
+            FONT_HERSHEY_SIMPLEX,0.7,Scalar(73,39,245),2);
+
+    ////////////////////////////////////////////////////////
+    // แสดงภาพใน Qt GUI
+    ////////////////////////////////////////////////////////
+
+    // OpenCV ใช้ BGR แต่ Qt ใช้ RGB
+    cvtColor(frame, frame, COLOR_BGR2RGB);
+
+    // แปลง Mat → QImage
+    QImage img(
+        frame.data,
+        frame.cols,
+        frame.rows,
+        frame.step,
+        QImage::Format_RGB888
+        );
+
+    // แสดงภาพใน QLabel
+    ui->label_camera->setPixmap(QPixmap::fromImage(img));
+}
