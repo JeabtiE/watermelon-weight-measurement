@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(GUI VERSION 0.1 LANGUAGES CXX)
 
-set(OpenCV_DIR "C:/project_compro/opencv/build")
+set(OpenCV_DIR "/opt/homebrew/opt/opencv")
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -31,9 +31,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         calibrationwindow.h calibrationwindow.cpp calibrationwindow.ui
-        config.h
-        config.cpp
-
+        config.h config.cpp
+        home.h home.cpp home.ui
+        resources.qrc
     )
 
     qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
@@ -81,3 +81,8 @@ install(TARGETS GUI
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(GUI)
 endif()
+
+set_target_properties(GUI PROPERTIES
+    MACOSX_BUNDLE_INFO_PLIST_CONTENTS
+    "NSCameraUsageDescription;This app needs camera access for analysis"
+)
