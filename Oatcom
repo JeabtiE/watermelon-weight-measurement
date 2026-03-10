@@ -249,8 +249,3 @@ void CalibrationWindow::on_btn_continue_clicked()
 
     this->close();
 }
-
-
-
-
-
