@@ -227,6 +227,47 @@ private:
 
 #endif // CALIBRATIONWINDOW_H
 ////////////// oat //////////////
+void CalibrationWindow::on_btn_capture_clicked()
+{
+    if(!homography_ready)
+    {
+        QMessageBox::warning(this,
+                             "Calibration",
+                             "Aruco markers not detected!");
+        return;
+    }
+
+    calibrated = true;
+
+    qDebug() << "Homography locked";
+
+    ui->btn_continue->setEnabled(true);
+}
+
+void CalibrationWindow::on_btn_continue_clicked()
+{
+    if(!homography_ready)
+    {
+        QMessageBox::warning(this,
+                             "Calibration Required",
+                             "Please detect 4 Aruco markers first!");
+        return;
+    }
+
+    if(timer)
+    {
+        timer->stop();
+        disconnect(timer, nullptr, this, nullptr);
+    }
+
+    cap.release();
+
+    MainWindow *w = new MainWindow(homography);
+    w->show();
+
+    this->close();
+}
+
 
 
 
