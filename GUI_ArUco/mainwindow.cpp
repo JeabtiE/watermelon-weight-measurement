@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "config.h"
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>
@@ -245,3 +244,4 @@ void MainWindow::updateCamera()
 /////// Great /////////
 
 ///// Oat ////////
+
