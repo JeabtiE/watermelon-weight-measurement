@@ -168,5 +168,109 @@ void MainWindow::updateCamera()
 /////// Great /////////
 
 ///// Oat ////////
+void MainWindow::on_pushButton_2_clicked()
+{
+    ui->tableWidget->setRowCount(0);
+    watermelon_count = 0;
+}
+
+
+void MainWindow::on_pushButton_export_clicked()
+{
+    QString fileName = QFileDialog::getSaveFileName(
+        this,
+        "Save Report",
+        "",
+        "CSV Files (*.csv)"
+        );
+
+    if(fileName.isEmpty()) return;
+
+    QFile file(fileName);
+
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        return;
+
+    QTextStream out(&file);
+
+    int rowCount = ui->tableWidget->rowCount();
+    int colCount = ui->tableWidget->columnCount();
+
+    for(int col=0; col<colCount; col++)
+    {
+        out << ui->tableWidget->horizontalHeaderItem(col)->text();
+
+        if(col < colCount-1) out << ",";
+    }
+
+    out << "\n";
+
+    for(int row=0; row<rowCount; row++)
+    {
+        for(int col=0; col<colCount; col++)
+        {
+            QTableWidgetItem *item = ui->tableWidget->item(row,col);
+
+            if(item) out << item->text();
+
+            if(col < colCount-1) out << ",";
+        }
+
+        out << "\n";
+    }
+
+    file.close();
+
+    QMessageBox::information(this,"Success","Export Complete!");
+}
+
+
+void MainWindow::on_pushButton_finish_clicked()
+{
+    cameraTimer->stop();
+    countdownTimer->stop();
+    saveTimer->stop();
+
+    int total = weights.size();
+
+    if(total == 0) return;
+
+    double sum = 0;
+
+    for(double w : weights)
+        sum += w;
+
+    double avgWeight = sum / total;
+
+    int gradeScore = 0;
+
+    for(const QString &g : grades)
+    {
+        if(g == "A") gradeScore += 3;
+        if(g == "B") gradeScore += 2;
+        if(g == "C") gradeScore += 1;
+    }
+
+    double avgGrade = (double)gradeScore / total;
+
+    QString text;
+
+    text += "===== DASHBOARD =====\n\n";
+    text += "Total Watermelons : " + QString::number(total) + "\n";
+    text += "Average Weight : " + QString::number(avgWeight,'f',2) + " kg\n";
+    text += "Grade A : " + QString::number(countA) + "\n";
+    text += "Grade B : " + QString::number(countB) + "\n";
+    text += "Grade C : " + QString::number(countC) + "\n";
+
+    QMessageBox::information(this,"Dashboard",text);
+}
+
+
+void MainWindow::on_pushButton_continue_clicked()
+{
+    cameraTimer->start(30);
+    countdownTimer->start(1000);
+}
+
 
 
