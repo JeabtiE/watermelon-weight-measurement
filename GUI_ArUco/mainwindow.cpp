@@ -27,7 +27,88 @@ using namespace cv;
 using namespace std;
 
 
-////// Great ////////
+MainWindow::MainWindow(cv::Mat H, QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+
+    homography = H.clone();
+
+    qDebug() << "Homography received";
+
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName("watermelon.db");
+
+    if(!db.open())
+    {
+        qDebug() << "Database error";
+    }
+    else
+    {
+        qDebug() << "Database opened";
+        qDebug() << "DB Path:" << QDir::currentPath();
+    }
+
+    QSqlQuery query;
+
+    query.exec(
+        "CREATE TABLE IF NOT EXISTS watermelon ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "width REAL,"
+        "height REAL,"
+        "weight REAL,"
+        "grade TEXT,"
+        "timestamp TEXT)"
+        );
+
+    cap.open(0, cv::CAP_DSHOW);
+
+    cameraTimer = new QTimer(this);
+    connect(cameraTimer, &QTimer::timeout, this, &MainWindow::updateCamera);
+    cameraTimer->start(30);
+
+    saveTimer = new QTimer(this);
+    connect(saveTimer, &QTimer::timeout, this, &MainWindow::saveWatermelon);
+
+    countdownTimer = new QTimer(this);
+    connect(countdownTimer, &QTimer::timeout, this, [=](){
+
+        countdown--;
+
+        if(countdown <= 0)
+        {
+            saveWatermelon();
+            countdown = 15;
+        }
+
+    });
+
+    countdownTimer->start(1000);
+
+    ui->tableWidget->setColumnCount(5);
+
+    ui->tableWidget->setHorizontalHeaderLabels({
+        "No :","Width (cm)","Height (cm)","Weight (kg)","Grade"
+    });
+
+    ui->tableWidget->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+}
+
+MainWindow::~MainWindow()
+{
+    cap.release();
+    delete ui;
+}
+
+QString getGrade(double weight)
+{
+    if(weight > 3.0) return "A";
+    else if(weight >= 2.0) return "B";
+    else return "C";
+}
+
 
 
 void MainWindow::updateCamera()
@@ -367,6 +448,7 @@ void MainWindow::on_pushButton_continue_clicked()
     cameraTimer->start(30);
     countdownTimer->start(1000);
 }
+
 
 
 
