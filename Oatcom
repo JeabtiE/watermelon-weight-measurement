@@ -147,3 +147,13 @@ void CalibrationWindow::on_btn_continue_clicked()
     this->close();
 }
 
+////////// main.h ///////////
+
+    void on_pushButton_2_clicked();
+
+    void on_pushButton_export_clicked();
+
+    void on_pushButton_finish_clicked();
+
+    void on_pushButton_continue_clicked();
+
