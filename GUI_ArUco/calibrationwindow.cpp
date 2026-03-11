@@ -10,7 +10,9 @@
 #include <iostream>
 
 #include <QMessageBox>
+
 /////////// mon //////////////////
+
 CalibrationWindow::CalibrationWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::CalibrationWindow)
@@ -225,5 +227,6 @@ private:
 
 #endif // CALIBRATIONWINDOW_H
 ////////////// oat //////////////
+
 
 
