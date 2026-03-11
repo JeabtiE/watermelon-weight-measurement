@@ -1,68 +1,46 @@
-// ฟังก์ชัน updateCamera() จะถูกเรียกทุก ๆ frame (ประมาณ 30 fps)
-// หน้าที่คือ
-// 1. อ่านภาพจากกล้อง
-// 2. ตรวจจับแตงโม
-// 3. วัดขนาด
-// 4. คำนวณน้ำหนัก(อีกส่วน)
-// 5. แสดงผลบนหน้าจอ(อีกส่วน)
+Mat frame;
 
-void MainWindow::updateCamera()
-{
-    // ตัวแปรสำหรับเก็บภาพจากกล้อง
-    Mat frame;
-
-    // อ่าน frame จากกล้อง webcam
     cap >> frame;
 
-    // ถ้าอ่านภาพไม่ได้ให้หยุดฟังก์ชันทันที
     if(frame.empty()) return;
 
-    // ทำ Gaussian Blur เพื่อลด noise ในภาพ
-    // kernel size = 11x11
-    GaussianBlur(frame, frame, Size(11,11), 0.1);
+    GaussianBlur(frame, frame, Size(11,11), 2);
 
-    // เก็บภาพปัจจุบันไว้ (ใช้ตอน save ภาพแตงโม)
     currentFrame = frame.clone();
 
-    // แปลงภาพจาก BGR → HSV
-    // HSV ทำให้การแยกสีง่ายกว่า RGB
     Mat hsv;
+
     cv::cvtColor(frame, hsv, cv::COLOR_BGR2HSV);
 
-    ////////////////////////////////////////////////////////
-    // HSV segmentation (แยกสีของแตงโม)
-    ////////////////////////////////////////////////////////
-
-    // mask สำหรับเก็บช่วงสีต่าง ๆ
     Mat mask_green, mask_dark, mask_light, mask_total;
 
-    // ช่วงสีเขียวของเปลือกแตงโม
-    Scalar lower_green(20,20,20);
-    Scalar upper_green(110,255,255);
+    Scalar lower_green(35,40,40);  
+    Scalar upper_green(90,255,255); 
 
-    // ตรวจจับ pixel ที่อยู่ในช่วงสีนี้
     inRange(hsv, lower_green, upper_green, mask_green);
 
-    // ช่วงสีมืด (ลายของแตงโม)
     Scalar lower_dark(0,0,0);
     Scalar upper_dark(180,255,90);
 
     inRange(hsv, lower_dark, upper_dark, mask_dark);
 
-    // สีเขียวเข้ม
+    Scalar lower_shadow(0,0,0);
+    Scalar upper_shadow(180,255,70);
+
+    inRange(hsv, lower_shadow, upper_shadow, mask_dark);
+
     Scalar lower_darkgreen(35,10,10);
     Scalar upper_darkgreen(120,255,120);
+
     Mat mask_darkgreen;
 
     inRange(hsv, lower_darkgreen, upper_darkgreen, mask_darkgreen);
 
-    // สีเขียวอ่อน
     Scalar lower_light(20,20,120);
     Scalar upper_light(90,120,255);
 
     inRange(hsv, lower_light, upper_light, mask_light);
 
-    // mask สำหรับ highlight บนผิวแตงโม
     Mat mask_highlight;
 
     Scalar lower_high(0,0,200);
@@ -70,58 +48,42 @@ void MainWindow::updateCamera()
 
     inRange(hsv, lower_high, upper_high, mask_highlight);
 
-    // รวม mask ทั้งหมดเข้าด้วยกัน
     mask_total =
         mask_green |
         mask_dark |
         mask_light |
         mask_darkgreen;
 
-    // สร้าง kernel สำหรับ morphology
     Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(9,9));
 
-    // ปิดรูเล็ก ๆ ใน mask
     morphologyEx(mask_total, mask_total, MORPH_CLOSE, kernel);
 
-    // ลบ noise เล็ก ๆ
     morphologyEx(mask_total, mask_total, MORPH_OPEN, kernel);
 
-    ////////////////////////////////////////////////////////
-    // หา contour ของวัตถุ
-    ////////////////////////////////////////////////////////
-
     vector<vector<Point>> contours;
+
     vector<Vec4i> hierarchy;
 
-    // หาเส้นขอบของวัตถุใน mask
     findContours(mask_total, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 
     int objects = 0;
 
-    // ตัวแปรสำหรับหา contour ที่ใหญ่ที่สุด
     double maxArea = 0;
+
     int maxIndex = -1;
 
-    // วนลูปตรวจสอบ contour ทุกตัว
     for(int i = 0; i < (int)contours.size(); i++)
     {
-        // คำนวณพื้นที่ของ contour
         double area = contourArea(contours[i]);
 
-        // ถ้าเล็กเกินไปให้ข้าม
         if(area < 8000) continue;
 
-        // คำนวณเส้นรอบรูป
         double perimeter = arcLength(contours[i], true);
 
-        // คำนวณ circularity
-        // ใช้ตรวจสอบว่าวัตถุมีรูปทรงคล้ายวงรีหรือไม่
         double circularity = 4 * CV_PI * area / (perimeter * perimeter);
 
-        // ถ้าไม่กลมพอให้ข้าม
         if(circularity < 0.45) continue;
 
-        // เลือก contour ที่ใหญ่ที่สุด
         if(area > maxArea)
         {
             maxArea = area;
@@ -129,12 +91,6 @@ void MainWindow::updateCamera()
         }
     }
 
-    // reset ค่า
     width_cm = 0;
     height_cm = 0;
     weight = 0;
-
-    ////////////////////////////////////////////////////////
-    // วัดขนาดวัตถุ (แตงโม)
-    ////////////////////////////////////////////////////////
-}
