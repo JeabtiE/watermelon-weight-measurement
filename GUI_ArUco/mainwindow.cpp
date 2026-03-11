@@ -167,7 +167,8 @@ void MainWindow::updateCamera()
 
 /////// Great /////////
 
-///// Oat ////////
+
+
 void MainWindow::on_pushButton_2_clicked()
 {
     ui->tableWidget->setRowCount(0);
@@ -271,6 +272,7 @@ void MainWindow::on_pushButton_continue_clicked()
     cameraTimer->start(30);
     countdownTimer->start(1000);
 }
+
 
 
 
