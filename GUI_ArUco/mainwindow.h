@@ -38,7 +38,13 @@ private slots:
 
     void saveWatermelon();
 
-    ////// oat ////////
+    void on_pushButton_2_clicked();
+
+    void on_pushButton_export_clicked();
+
+    void on_pushButton_finish_clicked();
+
+    void on_pushButton_continue_clicked();
 
 private:
 
@@ -78,4 +84,5 @@ private:
 };
 
 #endif // MAINWINDOW_H
+
 
