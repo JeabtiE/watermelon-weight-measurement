@@ -341,10 +341,52 @@ void MainWindow::updateCamera()
     ui->label_camera->setPixmap(QPixmap::fromImage(img));
 }
 
-/////// Great /////////
+void MainWindow::saveWatermelon()
+{
+    if(saved) return;
 
+    if(width_cm <= 0 || height_cm <= 0 || weight <= 0) return;
 
-///////// oat /////////
+    int row = ui->tableWidget->rowCount();
+    ui->tableWidget->insertRow(row);
+
+    ui->tableWidget->setItem(row,0,new QTableWidgetItem(QString::number(watermelon_no)));
+    ui->tableWidget->setItem(row,1,new QTableWidgetItem(QString::number(width_cm,'f',2)));
+    ui->tableWidget->setItem(row,2,new QTableWidgetItem(QString::number(height_cm,'f',2)));
+    ui->tableWidget->setItem(row,3,new QTableWidgetItem(QString::number(weight,'f',2)));
+
+    QString grade = getGrade(weight);
+
+    weights.push_back(weight);
+    grades.push_back(grade);
+
+    if(grade == "A") countA++;
+    else if(grade == "B") countB++;
+    else if(grade == "C") countC++;
+
+    ui->tableWidget->setItem(row,4,new QTableWidgetItem(grade));
+
+    for(int i=0;i<4;i++)
+        ui->tableWidget->item(row,i)->setTextAlignment(Qt::AlignCenter);
+
+    watermelon_no++;
+
+    QSqlQuery query;
+
+    query.prepare("INSERT INTO watermelon (width,height,weight,grade) VALUES (?,?,?,?)");
+
+    query.addBindValue(width_cm);
+    query.addBindValue(height_cm);
+    query.addBindValue(weight);
+    query.addBindValue(grade);
+
+    query.exec();
+
+    watermelon_images.push_back(currentFrame.clone());
+
+    saved = true;
+}
+
 void MainWindow::on_pushButton_2_clicked()
 {
     ui->tableWidget->setRowCount(0);
@@ -448,6 +490,7 @@ void MainWindow::on_pushButton_continue_clicked()
     cameraTimer->start(30);
     countdownTimer->start(1000);
 }
+
 
 
 
