@@ -1,4 +1,3 @@
-///////// mon ///////////
 #ifndef CALIBRATIONWINDOW_H
 #define CALIBRATIONWINDOW_H
 
@@ -22,7 +21,6 @@ private slots:
     void updateCamera();
     void on_btn_capture_clicked();
     void on_btn_continue_clicked();
-    void on_btn_back_clicked();
 
 private:
     Ui::CalibrationWindow *ui;
