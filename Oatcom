@@ -1,23 +1,14 @@
-// ฟังก์ชันนี้ทำงานเมื่อกดปุ่ม pushButton_2
-// ใช้สำหรับล้างข้อมูลในตาราง และ reset จำนวนแตงโมทั้งหมด
+/////// main ///////////////
 
 void MainWindow::on_pushButton_2_clicked()
 {
-    // ลบข้อมูลทุก row ใน tableWidget
     ui->tableWidget->setRowCount(0);
-
-    // reset ตัวแปรนับจำนวนแตงโม
     watermelon_count = 0;
 }
 
-//////********//////////*********/////////********//////////*********//////********////////
-
-// ฟังก์ชัน export ข้อมูลใน tableWidget เป็นไฟล์ CSV
-// ใช้สำหรับนำข้อมูลไปเปิดใน Excel / Google Sheets / Data analysis
 
 void MainWindow::on_pushButton_export_clicked()
 {
-    // เปิด dialog ให้ผู้ใช้เลือกตำแหน่งและชื่อไฟล์
     QString fileName = QFileDialog::getSaveFileName(
         this,
         "Save Report",
@@ -25,187 +16,115 @@ void MainWindow::on_pushButton_export_clicked()
         "CSV Files (*.csv)"
         );
 
-    // ถ้าผู้ใช้กดยกเลิก
     if(fileName.isEmpty()) return;
 
-    // สร้าง QFile object
     QFile file(fileName);
 
-    // เปิดไฟล์สำหรับเขียนข้อความ
     if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
 
-    // QTextStream ใช้สำหรับเขียน text ลงไฟล์
     QTextStream out(&file);
 
-    // จำนวน row และ column ของ table
     int rowCount = ui->tableWidget->rowCount();
     int colCount = ui->tableWidget->columnCount();
 
-    /////////////////////////////////////////////////////////
-    // เขียน header ของตาราง
-    /////////////////////////////////////////////////////////
-
     for(int col=0; col<colCount; col++)
     {
-        // ดึงชื่อ column header
         out << ui->tableWidget->horizontalHeaderItem(col)->text();
 
-        // ใส่ comma เพื่อแบ่ง column
         if(col < colCount-1) out << ",";
     }
 
-    // ขึ้นบรรทัดใหม่
     out << "\n";
-
-    /////////////////////////////////////////////////////////
-    // เขียนข้อมูลแต่ละ row
-    /////////////////////////////////////////////////////////
 
     for(int row=0; row<rowCount; row++)
     {
         for(int col=0; col<colCount; col++)
         {
-            // ดึง item จาก table
             QTableWidgetItem *item = ui->tableWidget->item(row,col);
 
-            // ถ้ามีข้อมูล
             if(item) out << item->text();
 
-            // คั่น column
             if(col < colCount-1) out << ",";
         }
 
-        // ขึ้นบรรทัดใหม่เมื่อจบ row
         out << "\n";
     }
 
-    // ปิดไฟล์
     file.close();
 
-    // แจ้งเตือนผู้ใช้ว่า export สำเร็จ
     QMessageBox::information(this,"Success","Export Complete!");
 }
 
-//////********//////////*********/////////********//////////*********//////********////////
-
-// ฟังก์ชันนี้ทำงานเมื่อกดปุ่ม Finish
-// ใช้สำหรับสรุปผลการคัดแยกแตงโมทั้งหมด
 
 void MainWindow::on_pushButton_finish_clicked()
 {
-    // หยุด timer ทั้งหมดของระบบ
     cameraTimer->stop();
     countdownTimer->stop();
     saveTimer->stop();
 
-    // จำนวนแตงโมทั้งหมด
     int total = weights.size();
 
-    // ถ้าไม่มีข้อมูล
     if(total == 0) return;
 
-    // ตัวแปรรวมค่าน้ำหนัก
     double sum = 0;
 
-    // รวมค่าน้ำหนักทั้งหมด
     for(double w : weights)
         sum += w;
 
-    // คำนวณค่าเฉลี่ยน้ำหนัก
     double avgWeight = sum / total;
-
-    ////////////////////////////////////////////////////////
-    // คำนวณคะแนนเกรดเฉลี่ย
-    ////////////////////////////////////////////////////////
 
     int gradeScore = 0;
 
     for(const QString &g : grades)
     {
-        // แปลงเกรดเป็นคะแนน
         if(g == "A") gradeScore += 3;
         if(g == "B") gradeScore += 2;
         if(g == "C") gradeScore += 1;
     }
 
-    // ค่าเฉลี่ยเกรด
     double avgGrade = (double)gradeScore / total;
-
-    ////////////////////////////////////////////////////////
-    // สร้างข้อความ dashboard
-    ////////////////////////////////////////////////////////
 
     QString text;
 
     text += "===== DASHBOARD =====\n\n";
-
     text += "Total Watermelons : " + QString::number(total) + "\n";
-
-    text += "Average Weight : " +
-            QString::number(avgWeight,'f',2) + " kg\n";
-
+    text += "Average Weight : " + QString::number(avgWeight,'f',2) + " kg\n";
     text += "Grade A : " + QString::number(countA) + "\n";
     text += "Grade B : " + QString::number(countB) + "\n";
     text += "Grade C : " + QString::number(countC) + "\n";
 
-    // แสดงผล dashboard
     QMessageBox::information(this,"Dashboard",text);
 }
 
-//////********//////////*********/////////********//////////*********//////********////////
-
-// ฟังก์ชันนี้ใช้ resume ระบบหลังจากกด Finish
 
 void MainWindow::on_pushButton_continue_clicked()
 {
-    // เปิด camera timer อีกครั้ง
     cameraTimer->start(30);
-
-    // เริ่ม countdown timer ใหม่
     countdownTimer->start(1000);
 }
 
-
-//////////**********///////////************//////////**********////////***********////////
-*********///////////************//////////***********///////////*********////////////********
-
-
-
-// ฟังก์ชันนี้ทำงานเมื่อกดปุ่ม Capture Calibration
-// ใช้สำหรับ "ล็อกค่า Homography" หลังจากตรวจพบ ArUco marker ครบ 4 ตัว
+////////////////// Calibrate //////////////////////
 
 void CalibrationWindow::on_btn_capture_clicked()
 {
-    // ถ้ายังไม่สามารถคำนวณ homography ได้
     if(!homography_ready)
     {
-        // แจ้งเตือนผู้ใช้ว่า marker ยังไม่ครบ
         QMessageBox::warning(this,
                              "Calibration",
                              "Aruco markers not detected!");
         return;
     }
 
-    // ตั้งค่าว่าระบบถูก calibration แล้ว
     calibrated = true;
 
-    // debug message ใน console
     qDebug() << "Homography locked";
 
-    // เปิดใช้งานปุ่ม continue
-    // ผู้ใช้สามารถไปหน้าวัดแตงโมได้
     ui->btn_continue->setEnabled(true);
 }
 
-//////////**********/////////*********/////////**********//////////********//////////
-
-// ฟังก์ชันนี้ทำงานเมื่อกดปุ่ม Continue
-// ใช้สำหรับเปลี่ยนจาก Calibration Window → MainWindow
-
 void CalibrationWindow::on_btn_continue_clicked()
 {
-    // ตรวจสอบว่ามี homography หรือยัง
     if(!homography_ready)
     {
         QMessageBox::warning(this,
@@ -214,38 +133,17 @@ void CalibrationWindow::on_btn_continue_clicked()
         return;
     }
 
-    ///////////////////////////////////////////////////////
-    // หยุดกล้องในหน้าปัจจุบัน
-    ///////////////////////////////////////////////////////
-
     if(timer)
     {
-        // หยุดการอ่าน frame
         timer->stop();
-
-        // ตัด signal-slot connection
         disconnect(timer, nullptr, this, nullptr);
     }
 
-    ///////////////////////////////////////////////////////
-    // ปล่อย resource ของกล้อง
-    ///////////////////////////////////////////////////////
-
     cap.release();
 
-    ///////////////////////////////////////////////////////
-    // เปิด MainWindow (ระบบวัดแตงโม)
-    ///////////////////////////////////////////////////////
-
-    // ส่ง Homography matrix ไปให้ MainWindow
     MainWindow *w = new MainWindow(homography);
-
-    // แสดงหน้าต่างหลัก
     w->show();
-
-    ///////////////////////////////////////////////////////
-    // ปิด Calibration Window
-    ///////////////////////////////////////////////////////
 
     this->close();
 }
+
