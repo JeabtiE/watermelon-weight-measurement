@@ -1,202 +1,94 @@
-#include "calibrationwindow.h"
-#include "ui_calibrationwindow.h"
-#include "config.h"
-#include "mainwindow.h"
-#include "home.h"
-
-#include <opencv2/opencv.hpp>
-#include <opencv2/objdetect/aruco_detector.hpp>
-#include <opencv2/objdetect/aruco_dictionary.hpp>
-#include <opencv2/objdetect/aruco_board.hpp>
-#include <iostream>
-
-#include <QMessageBox>
-
-CalibrationWindow::CalibrationWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::CalibrationWindow)
-{
-    ui->setupUi(this);
-
-    ui->label_camera->setScaledContents(true);
-
-    ui->btn_continue->setEnabled(true);
-
-    cap.open(0, cv::CAP_AVFOUNDATION);
-
-    timer = new QTimer(this);
-
-    connect(timer, &QTimer::timeout,
-            this, &CalibrationWindow::updateCamera);
-
-    timer->start(30);
-}
-
-CalibrationWindow::~CalibrationWindow()
-{
-    if(timer)
-        timer->stop();
-
-    if(cap.isOpened())
-        cap.release();
-
-    delete ui;
-}
 void CalibrationWindow::updateCamera()
 {
-    // ตัวแปรเก็บภาพจากกล้อง
     cv::Mat frame;
-
-    // อ่าน frame จาก webcam
     cap >> frame;
 
-    // ถ้าอ่านภาพไม่ได้ ให้หยุดฟังก์ชัน
     if(frame.empty()) return;
 
-    // เก็บ frame ปัจจุบันไว้
-    // ใช้สำหรับการ save หรือ debugging
     currentFrame = frame.clone();
 
-    ///////////////////////////////////////////////////////////
     // ARUCO DETECTION
-    ///////////////////////////////////////////////////////////
 
-    // สร้าง dictionary ของ ArUco marker
-    // DICT_4X4_50 = marker ขนาด 4x4 bit มีทั้งหมด 50 id
     static cv::aruco::Dictionary dictionary =
         cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_50);
 
-    // สร้าง parameter สำหรับ detector
     static cv::aruco::DetectorParameters params;
-
-    // สร้าง detector object
     static cv::aruco::ArucoDetector detector(dictionary, params);
 
-    // vector สำหรับเก็บ id ของ marker ที่ตรวจพบ
     std::vector<int> ids;
-
-    // vector สำหรับเก็บตำแหน่งมุม 4 จุดของ marker
     std::vector<std::vector<cv::Point2f>> corners;
 
-    // ตรวจจับ marker ในภาพ
     detector.detectMarkers(frame, corners, ids);
 
-    // ถ้าพบ marker อย่างน้อย 1 ตัว
     if(ids.size() > 0)
     {
-        // วาดกรอบ marker ที่ตรวจพบลงบนภาพ
         cv::aruco::drawDetectedMarkers(frame, corners, ids);
 
-        ///////////////////////////////////////////////////////
-        // เก็บตำแหน่ง center ของ marker ตาม id
-        ///////////////////////////////////////////////////////
+        // เก็บ center ของ marker ตาม id
 
-        // map สำหรับเก็บ id → center coordinate
         std::map<int, cv::Point2f> markerCenter;
 
-        // วนลูป marker ทุกตัวที่ตรวจพบ
         for(int i=0;i<ids.size();i++)
         {
             int id = ids[i];
 
-            // ใช้เฉพาะ marker id 0 ถึง 3
             if(id >= 0 && id <= 3)
             {
                 cv::Point2f c(0,0);
 
-                // คำนวณ center โดยเฉลี่ยจาก 4 corner
                 for(int j=0;j<4;j++)
                     c += corners[i][j];
 
-                // หาค่าเฉลี่ย
                 c *= 0.25f;
 
-                // เก็บตำแหน่ง center ลง map
                 markerCenter[id] = c;
 
-                // วาดจุด center ของ marker
                 cv::circle(frame,c,6,cv::Scalar(0,255,0),-1);
             }
         }
 
-        ///////////////////////////////////////////////////////
-        // ถ้าเห็น marker ครบ 4 ตัว
-        ///////////////////////////////////////////////////////
 
         if(markerCenter.size() == 4)
         {
-            // vector สำหรับเก็บ pixel coordinate
             std::vector<cv::Point2f> imgPts(4);
-
-            // vector สำหรับเก็บ world coordinate
             std::vector<cv::Point2f> worldPts(4);
 
-            ///////////////////////////////////////////////////
-            // mapping ตาม layout จริงของ marker
-            ///////////////////////////////////////////////////
+            imgPts[0] = markerCenter[0]; // TL
+            imgPts[1] = markerCenter[1]; // TR
+            imgPts[2] = markerCenter[2]; // BL
+            imgPts[3] = markerCenter[3]; // BR
 
-            // TL = top left
-            imgPts[0] = markerCenter[2];
-
-            // TR = top right
-            imgPts[1] = markerCenter[1];
-
-            // BL = bottom left
-            imgPts[2] = markerCenter[0];
-
-            // BR = bottom right
-            imgPts[3] = markerCenter[3];
-
-            ///////////////////////////////////////////////////
-            // กำหนดตำแหน่งจริงของ marker ในโลกจริง
-            ///////////////////////////////////////////////////
-
-            // หน่วยเป็น millimeter
-            // marker ห่างกัน 30 cm
 
             worldPts[0] = cv::Point2f(0,0);       // TL
-            worldPts[1] = cv::Point2f(260,0);     // TR
-            worldPts[2] = cv::Point2f(0,260);     // BL
-            worldPts[3] = cv::Point2f(260,260);   // BR
+            worldPts[1] = cv::Point2f(290,0);     // TR
+            worldPts[2] = cv::Point2f(0,290);     // BL
+            worldPts[3] = cv::Point2f(290,290);   // BR
 
-            ///////////////////////////////////////////////////
 
-            // ถ้ายังไม่ได้ทำ calibration
             if(!calibrated)
             {
-                // คำนวณ Homography matrix
-                // ใช้แปลง pixel → world coordinate
                 homography = cv::findHomography(imgPts, worldPts);
 
-                // ถ้าคำนวณสำเร็จ
                 if(!homography.empty())
                     homography_ready = true;
             }
 
-            // แสดงสถานะบน GUI
             ui->label_scale->setText("Homography Ready");
 
-            ////////////////////////////////////////////////////
             // TEST WORLD COORDINATE
-            ////////////////////////////////////////////////////
 
-            // ถ้า homography พร้อมใช้งาน
             if(homography_ready)
             {
                 std::vector<cv::Point2f> src(1);
                 std::vector<cv::Point2f> dst;
 
-                // ใช้ pixel กลางภาพเป็น test point
                 src[0] = cv::Point2f(frame.cols/2, frame.rows/2);
 
-                // แปลง pixel → world coordinate
                 cv::perspectiveTransform(src, dst, homography);
 
-                // world coordinate ในหน่วย mm
                 int X = (int)dst[0].x;
                 int Y = (int)dst[0].y;
 
-                // แสดงค่าบนภาพ
                 std::string text =
                     "X: " + std::to_string(X) +
                     " mm  Y: " + std::to_string(Y) + " mm";
@@ -212,13 +104,9 @@ void CalibrationWindow::updateCamera()
         }
     }
 
-    ///////////////////////////////////////////////////////////
-    // แสดงสถานะ calibration
-    ///////////////////////////////////////////////////////////
 
     if(!homography_ready)
     {
-        // ยังไม่เห็น marker ครบ
         cv::putText(frame,
                     "Place 4 Aruco markers",
                     cv::Point(30,50),
@@ -229,7 +117,6 @@ void CalibrationWindow::updateCamera()
     }
     else
     {
-        // calibration สำเร็จ
         cv::putText(frame,
                     "Calibration Ready",
                     cv::Point(30,50),
@@ -239,20 +126,14 @@ void CalibrationWindow::updateCamera()
                     2);
     }
 
-    ///////////////////////////////////////////////////////////
-    // แสดงภาพใน Qt GUI
-    ///////////////////////////////////////////////////////////
 
-    // OpenCV ใช้ BGR แต่ Qt ใช้ RGB
     cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
 
-    // แปลง Mat → QImage
     QImage img(frame.data,
                frame.cols,
                frame.rows,
                frame.step,
                QImage::Format_RGB888);
 
-    // แสดงภาพใน QLabel
     ui->label_camera->setPixmap(QPixmap::fromImage(img));
 }
